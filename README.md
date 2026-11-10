@@ -1,56 +1,45 @@
-# Welcome to your Expo app 👋
+# 🚗 Garagem — info_veiculo_app
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+App Android para cuidar do carro sem esquecer nada: troca de óleo, revisões, IPVA e seguro, com lembretes no celular mesmo com o app fechado.
 
-## Get started
+Feito com **Expo (SDK 58)**, **React Native** e **Expo Router**. Os dados ficam salvos só no próprio celular.
 
-1. Install dependencies
+## Funcionalidades
 
-   ```bash
-   npm install
-   ```
+- **Hodômetro e km do dia**: registre os km rodados no dia ou o valor do painel. O app calcula a sua média de km por dia.
+- **Troca de óleo**: intervalo por km ou por meses (o que vencer primeiro), com previsão da data pela sua média.
+- **Revisões**: plano de revisões em linha do tempo, com valor pago, oficina e histórico.
+- **IPVA e seguro**: informe o valor e compare de **1x a 12x**, com juros ao mês, "sem juros até Nx" e desconto à vista. Cada parcela pode ser marcada como paga.
+- **Notificações locais**: avisos de vencimento (7 dias antes, 1 dia antes e no dia), de óleo e revisão chegando, e um lembrete diário para registrar os km.
+- **Vários carros**: cadastre mais de um e alterne entre eles.
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Como rodar
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Depois, escaneie o QR code com o app **Expo Go** no Android (celular e PC no mesmo Wi-Fi).
 
-### Other setup steps
+## Estrutura
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```
+src/
+├── app/          # telas (Expo Router)
+│   ├── (tabs)/   # Início, Manutenção, Pagamentos, Garagem
+│   ├── pagamento/
+│   └── revisao/
+├── components/   # componentes visuais reutilizáveis
+├── lib/          # regras (previsões, notificações)
+├── store/        # dados salvos no celular (zustand + AsyncStorage)
+├── utils/        # datas, formatação e cálculo de parcelas
+└── theme.ts      # cores, fontes e espaçamentos
+```
 
-## Learn more
+## Próximos passos
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Abastecimentos e consumo (km/l)
+- Gastos por mês com gráfico
+- Outros lembretes: licenciamento, pneus, pastilhas, filtros, multas
+- Fotos de documentos (CRLV, apólice, notas)
