@@ -32,18 +32,20 @@ export function Ring({
           </LinearGradient>
         </Defs>
         <Circle cx={size / 2} cy={size / 2} r={r} stroke={C.surface3} strokeWidth={stroke} fill="none" />
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          stroke={`url(#${id})`}
-          strokeWidth={stroke}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={`${circ} ${circ}`}
-          strokeDashoffset={circ * (1 - pct)}
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
+        {pct >= 0.01 ? (
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            stroke={`url(#${id})`}
+            strokeWidth={stroke}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray={`${circ} ${circ}`}
+            strokeDashoffset={circ * (1 - pct)}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        ) : null}
       </Svg>
       {children}
     </View>

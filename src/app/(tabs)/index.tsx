@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { Brand } from '@/components/brand';
 import { Plate } from '@/components/plate';
 import { levelColors, Ring } from '@/components/ring';
 import { Screen } from '@/components/screen';
@@ -31,6 +32,8 @@ export default function Home() {
   const revisions = useStore((s) => s.revisions);
   const payments = useStore((s) => s.payments);
   const setActive = useStore((s) => s.setActiveVehicle);
+  const docsCount = useStore((s) => s.docs.filter((d) => d.vehicleId === s.activeVehicleId).length);
+  const lockOn = useStore((s) => !!s.settings.docLock);
 
   const data = useMemo(() => {
     if (!v) return null;
@@ -88,6 +91,9 @@ export default function Home() {
   return (
     <Screen tabs>
       {/* Cabeçalho */}
+      <View style={styles.brandRow}>
+        <Brand />
+      </View>
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <T v="caption">{greeting()} 👋</T>
@@ -215,6 +221,23 @@ export default function Home() {
         </Card>
       </View>
 
+      {/* Documentos */}
+      <SectionHeader title="Documentos" action="Ver todos" onAction={() => router.push('/documentos')} />
+      <Card onPress={() => router.push('/documentos')} style={styles.docCard}>
+        <IconBadge icon="card-account-details-outline" size={48} />
+        <View style={{ flex: 1, gap: 3 }}>
+          <T v="label">Documento do carro</T>
+          <T v="caption" numberOfLines={1}>
+            {v.docInfo?.renavam
+              ? `Renavam ${v.docInfo.renavam}`
+              : docsCount > 0
+                ? `${docsCount} ${docsCount === 1 ? 'documento salvo' : 'documentos salvos'}`
+                : 'Anexe o CRLV e veja na hora, sem baixar'}
+          </T>
+        </View>
+        <Icon name={lockOn ? 'lock-outline' : 'chevron-right'} size={20} color={C.textMute} />
+      </Card>
+
       {/* Km da semana */}
       <SectionHeader title="Km da semana" action="Registrar" onAction={() => router.push('/km')} />
       <Card>
@@ -290,6 +313,7 @@ function HeroStat({ label, value, hint }: { label: string; value: string; hint?:
 }
 
 const styles = StyleSheet.create({
+  brandRow: { marginBottom: S.xl },
   header: { flexDirection: 'row', alignItems: 'center', gap: S.md, marginBottom: S.xl },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   hero: {
@@ -338,5 +362,6 @@ const styles = StyleSheet.create({
   gridCard: { flex: 1, gap: S.md, padding: S.lg },
   gridHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 4 },
   ringWrap: { alignItems: 'center', paddingVertical: S.xs },
+  docCard: { flexDirection: 'row', alignItems: 'center', gap: S.md },
   addRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: S.xs },
 });

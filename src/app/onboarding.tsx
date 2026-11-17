@@ -1,14 +1,14 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { Brand } from '@/components/brand';
 import { Screen } from '@/components/screen';
-import { Button, Icon, T } from '@/components/ui';
+import { Button, T } from '@/components/ui';
 import { VehicleForm, useVehicleForm } from '@/components/vehicle-form';
 import { ensurePermission } from '@/lib/notifications';
 import { useStore } from '@/store';
-import { C, gradients, S } from '@/theme';
+import { C, S } from '@/theme';
 
 export default function Onboarding() {
   const [v, setV] = useVehicleForm();
@@ -38,11 +38,9 @@ export default function Onboarding() {
         />
       }>
       <View style={styles.hero}>
-        <LinearGradient colors={gradients.accent} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.logo}>
-          <Icon name="car-sports" size={34} color="#fff" />
-        </LinearGradient>
+        <Brand size={1.5} />
         <T v="overline" style={{ marginTop: S.xl }}>
-          {canBack ? 'Novo carro' : 'Bem-vindo à Garagem'}
+          {canBack ? 'Novo carro' : 'Bem-vindo ao GestCar'}
         </T>
         <T v="title" style={{ fontSize: 32, lineHeight: 38 }}>
           {canBack ? 'Cadastre outro carro' : 'Seu carro no controle,\nsem esquecer nada.'}
@@ -58,5 +56,4 @@ export default function Onboarding() {
 
 const styles = StyleSheet.create({
   hero: { marginBottom: S.xxl, marginTop: S.lg },
-  logo: { width: 68, height: 68, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
 });

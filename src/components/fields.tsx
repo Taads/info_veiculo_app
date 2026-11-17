@@ -1,5 +1,5 @@
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import * as Haptics from 'expo-haptics';
+import { Haptics } from '@/lib/haptics';
 import { useState, type ReactNode } from 'react';
 import {
   Platform,

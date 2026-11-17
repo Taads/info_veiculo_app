@@ -6,9 +6,13 @@ import { addMonths, parseDate, toDateStr, todayStr, type DateStr } from '@/utils
 import { splitParcels } from '@/utils/finance';
 import { fmtNumber } from '@/utils/format';
 
+import { deleteDocFiles } from '@/lib/doc-files';
+
 import type {
+  DocInfo,
   ID,
   KmLog,
+  VehicleDoc,
   Payment,
   PaymentKind,
   Revision,
@@ -43,6 +47,7 @@ type State = {
   services: ServiceRecord[];
   revisions: Revision[];
   payments: Payment[];
+  docs: VehicleDoc[];
   settings: Settings;
 };
 
@@ -73,6 +78,11 @@ type Actions = {
   addPayment: (input: NewPaymentInput) => ID;
   toggleParcel: (paymentId: ID, n: number) => void;
   removePayment: (id: ID) => void;
+
+  addDoc: (d: Omit<VehicleDoc, 'id' | 'createdAt'>) => ID;
+  updateDoc: (id: ID, patch: Partial<Omit<VehicleDoc, 'id'>>) => void;
+  removeDoc: (id: ID) => void;
+  setDocInfo: (vehicleId: ID, info: DocInfo) => void;
 
   updateSettings: (patch: Partial<Settings>) => void;
 };
@@ -109,6 +119,7 @@ export const useStore = create<Store>()(
       services: [],
       revisions: [],
       payments: [],
+      docs: [],
       settings: {
         notifications: true,
         dailyKm: true,
@@ -134,7 +145,9 @@ export const useStore = create<Store>()(
       removeVehicle: (id) =>
         set((s) => {
           const vehicles = s.vehicles.filter((v) => v.id !== id);
+          deleteDocFiles(s.docs.filter((d) => d.vehicleId === id).flatMap((d) => d.pages));
           return {
+            docs: s.docs.filter((d) => d.vehicleId !== id),
             vehicles,
             activeVehicleId:
               s.activeVehicleId === id ? (vehicles[0]?.id ?? null) : s.activeVehicleId,
@@ -303,6 +316,32 @@ export const useStore = create<Store>()(
         })),
 
       removePayment: (id) => set((s) => ({ payments: s.payments.filter((p) => p.id !== id) })),
+
+      addDoc: (d) => {
+        const id = uid();
+        set((s) => ({ docs: [{ ...d, id, createdAt: new Date().toISOString() }, ...s.docs] }));
+        return id;
+      },
+
+      updateDoc: (id, patch) =>
+        set((s) => {
+          const old = s.docs.find((d) => d.id === id);
+          if (old && patch.pages) {
+            const keep = new Set(patch.pages.map((p) => p.file));
+            deleteDocFiles(old.pages.filter((p) => !keep.has(p.file)));
+          }
+          return { docs: s.docs.map((d) => (d.id === id ? { ...d, ...patch } : d)) };
+        }),
+
+      removeDoc: (id) =>
+        set((s) => {
+          const doc = s.docs.find((d) => d.id === id);
+          if (doc) deleteDocFiles(doc.pages);
+          return { docs: s.docs.filter((d) => d.id !== id) };
+        }),
+
+      setDocInfo: (vehicleId, info) =>
+        set((s) => ({ vehicles: s.vehicles.map((v) => (v.id === vehicleId ? { ...v, docInfo: info } : v)) })),
 
       updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
     }),

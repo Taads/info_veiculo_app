@@ -1,4 +1,4 @@
-import * as Haptics from 'expo-haptics';
+import { Haptics } from '@/lib/haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';

@@ -5,9 +5,10 @@ import { DarkTheme, ThemeProvider } from 'expo-router';
 import { Stack } from 'expo-router/stack';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useSyncExternalStore } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { Intro } from '@/components/intro';
 import { rescheduleAll, setupChannel } from '@/lib/notifications';
 import { useStore } from '@/store';
 import { C } from '@/theme';
@@ -57,6 +58,8 @@ export default function RootLayout() {
   });
   const hydrated = useHydrated();
   const ready = fontsLoaded && hydrated;
+  // Vinheta a cada abertura do app (não ao voltar do segundo plano).
+  const [showIntro, setShowIntro] = useState(true);
   useNotificationSync(ready);
 
   useEffect(() => {
@@ -86,6 +89,7 @@ export default function RootLayout() {
             }}
           />
         </Stack>
+        {showIntro ? <Intro onDone={() => setShowIntro(false)} /> : null}
       </ThemeProvider>
     </GestureHandlerRootView>
   );

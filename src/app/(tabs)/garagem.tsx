@@ -1,4 +1,4 @@
-import * as Haptics from 'expo-haptics';
+import { Haptics } from '@/lib/haptics';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
@@ -7,7 +7,9 @@ import { Chips, SwitchRow } from '@/components/fields';
 import { Plate } from '@/components/plate';
 import { Screen } from '@/components/screen';
 import { Button, Card, Icon, IconButton, Pill, Row, SectionHeader, T } from '@/components/ui';
-import { ensurePermission, scheduledCount, sendTest } from '@/lib/notifications';
+import { authenticate, biometricsAvailable, lockNow } from '@/lib/doc-lock';
+import { safe } from '@/lib/errors';
+import { ensurePermission, lastScheduleError, scheduledCount, sendTest } from '@/lib/notifications';
 import { useActiveVehicle, useStore } from '@/store';
 import { C, R, S } from '@/theme';
 import { fmtDate } from '@/utils/dates';
@@ -31,7 +33,7 @@ export default function Garage() {
 
   const logs = kmLogs.filter((l) => l.vehicleId === active?.id);
 
-  const toggleNotifications = async (on: boolean) => {
+  const toggleNotifications = safe('Erro nas notificações', async (on: boolean) => {
     if (on) {
       const ok = await ensurePermission(true);
       if (!ok) {
@@ -43,6 +45,30 @@ export default function Garage() {
       }
     }
     updateSettings({ notifications: on });
+  });
+
+  const toggleDocLock = safe('Erro na digital', async (on: boolean) => {
+    if (on && !(await biometricsAvailable())) {
+      Alert.alert('Nenhuma digital cadastrada', 'Cadastre uma digital ou bloqueio de tela nas configurações do Android.');
+      return;
+    }
+    // Ligar ou desligar sempre exige confirmar que é o dono.
+    const ok = await authenticate(on ? 'Confirme para ativar a proteção' : 'Confirme para desativar a proteção');
+    // A confirmação aqui não libera os documentos: ao entrar, pede de novo.
+    lockNow();
+    if (ok) updateSettings({ docLock: on, docLockAsked: true });
+  });
+
+  const testNotification = async () => {
+    const res = await sendTest();
+    if (res.ok) {
+      Alert.alert('Teste enviado ✅', 'Saia do app agora: a notificação chega em 5 segundos.');
+    } else if (res.reason === 'permission') {
+      Alert.alert('Sem permissão', 'Ative as notificações do Expo Go nas configurações do Android.');
+    } else {
+      Alert.alert('Não foi possível enviar', `Detalhe: ${res.detail}`);
+    }
+    setTimeout(() => scheduledCount().then(setCount).catch(() => {}), 800);
   };
 
   return (
@@ -121,13 +147,11 @@ export default function Garage() {
       <View style={styles.notifyFoot}>
         <T v="caption" color={C.textMute} style={{ flex: 1 }}>
           {count == null ? ' ' : `${count} ${count === 1 ? 'lembrete agendado' : 'lembretes agendados'}`}
+          {lastScheduleError ? `\n⚠️ ${lastScheduleError}` : ''}
         </T>
         <Pressable
           hitSlop={8}
-          onPress={async () => {
-            const ok = await sendTest();
-            Alert.alert(ok ? 'Teste enviado' : 'Sem permissão', ok ? 'Feche o app: a notificação chega em 5 segundos.' : 'Ative as notificações do Expo Go nas configurações do Android.');
-          }}
+          onPress={testNotification}
           style={styles.testBtn}>
           <Icon name="send-outline" size={16} color={C.accent} />
           <T v="label" color={C.accent} style={{ fontSize: 13 }}>
@@ -135,6 +159,20 @@ export default function Garage() {
           </T>
         </Pressable>
       </View>
+
+      {/* Segurança */}
+      <SectionHeader title="Documentos" />
+      <Card style={{ paddingVertical: S.xs }}>
+        <SwitchRow
+          icon="fingerprint"
+          title="Proteger com digital"
+          subtitle="Pede sua digital antes de abrir os documentos"
+          value={!!settings.docLock}
+          onChange={toggleDocLock}
+        />
+        <View style={styles.sep} />
+        <Row icon="folder-account-outline" title="Abrir documentos" onPress={() => router.push('/documentos')} last />
+      </Card>
 
       {/* Histórico de km */}
       <SectionHeader
@@ -173,7 +211,7 @@ export default function Garage() {
       </Card>
 
       <T v="caption" color={C.textMute} style={{ textAlign: 'center', marginTop: S.xxl }}>
-        Garagem · v1.0 · seus dados ficam só neste celular
+        GestCar · v1.0 · seus dados ficam só neste celular
       </T>
     </Screen>
   );

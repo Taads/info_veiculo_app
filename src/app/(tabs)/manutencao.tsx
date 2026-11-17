@@ -72,7 +72,7 @@ export default function Maintenance() {
           <Button
             style={{ flex: 1 }}
             size="md"
-            label="Registrar troca"
+            label="Fiz a troca"
             icon="check-circle-outline"
             onPress={() => router.push({ pathname: '/oleo', params: { modo: 'troca' } })}
           />

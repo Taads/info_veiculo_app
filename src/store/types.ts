@@ -24,6 +24,7 @@ export type Vehicle = {
   revisionKm: number;
   revisionMonths: number;
   oil: OilConfig;
+  docInfo?: DocInfo;
   createdAt: string;
 };
 
@@ -95,4 +96,46 @@ export type Settings = {
   dailyHour: number;
   /** Quantos dias antes avisar de um vencimento. */
   daysBefore: number[];
+  /** Pede a digital antes de abrir os documentos. */
+  docLock?: boolean;
+  /** Já perguntamos se a pessoa quer ativar a proteção. */
+  docLockAsked?: boolean;
+};
+
+export type DocKind = 'crlv' | 'cnh' | 'seguro' | 'nota' | 'outro';
+
+/** Um arquivo anexado. `file` é só o nome; o caminho é montado na hora. */
+export type DocPage = {
+  file: string;
+  type: 'image' | 'pdf';
+  name: string;
+  width?: number;
+  height?: number;
+};
+
+export type VehicleDoc = {
+  id: ID;
+  vehicleId: ID;
+  kind: DocKind;
+  title: string;
+  pages: DocPage[];
+  notes: string;
+  expiresAt?: DateStr;
+  createdAt: string;
+};
+
+/** Dados do CRLV digitados pela pessoa. */
+export type DocInfo = {
+  renavam: string;
+  chassi: string;
+  brandModel: string;
+  yearFab: string;
+  yearModel: string;
+  color: string;
+  fuel: string;
+  category: string;
+  city: string;
+  uf: string;
+  exercicio: string;
+  owner: string;
 };

@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
+import { Haptics } from '@/lib/haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { ComponentProps, ReactNode } from 'react';
 import {
@@ -62,8 +62,14 @@ export function Card({
   onPress?: () => void;
   padded?: boolean;
 }) {
-  const content = <View style={[styles.card, padded && styles.cardPad, style]}>{children}</View>;
-  if (!onPress) return content;
+  if (!onPress) return <View style={[styles.card, padded && styles.cardPad, style]}>{children}</View>;
+  // Com toque, o tamanho (flex/width) vai para o Pressable de fora.
+  const flat = StyleSheet.flatten(style) ?? {};
+  const content = (
+    <View style={[styles.card, padded && styles.cardPad, style, flat.width != null && { width: '100%' }, flat.flex != null && { flex: 1 }]}>
+      {children}
+    </View>
+  );
   return (
     <Pressable
       onPress={() => {
@@ -71,7 +77,8 @@ export function Card({
         onPress();
       }}
       style={({ pressed }) => ({
-        flex: StyleSheet.flatten(style)?.flex,
+        flex: flat.flex,
+        width: flat.width,
         transform: [{ scale: pressed ? 0.985 : 1 }],
         opacity: pressed ? 0.92 : 1,
       })}>
@@ -158,7 +165,13 @@ export function Button({
       ) : (
         <>
           {icon ? <Icon name={icon} size={size === 'lg' ? 20 : 18} color={fg} /> : null}
-          <RNText style={[styles.btnText, { color: fg, fontSize: size === 'lg' ? 16 : 14.5 }]}>{label}</RNText>
+          <RNText
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+            style={[styles.btnText, { color: fg, fontSize: size === 'lg' ? 16 : 14.5, flexShrink: 1 }]}>
+            {label}
+          </RNText>
         </>
       )}
     </View>
