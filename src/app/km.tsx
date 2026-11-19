@@ -81,7 +81,8 @@ export default function KmSheet() {
               keyboardType="number-pad"
               selectionColor={C.accent}
               cursorColor={C.accent}
-              style={styles.bigText}
+              // largura acompanha os dígitos para o "km" ficar colado no número
+              style={[styles.bigText, { width: (value > 0 ? fmtNumber(value) : '0').length * 38 + 10 }]}
             />
             <T v="h2" color={C.textMute}>
               km

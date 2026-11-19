@@ -9,7 +9,7 @@ Feito com **Expo (SDK 58)**, **React Native** e **Expo Router**. Os dados ficam 
 - **Hodômetro e km do dia**: registre os km rodados no dia ou o valor do painel. O app calcula a sua média de km por dia.
 - **Troca de óleo**: intervalo por km ou por meses (o que vencer primeiro), com previsão da data pela sua média.
 - **Revisões**: plano de revisões em linha do tempo, com valor pago, oficina e histórico.
-- **IPVA e seguro**: informe o valor e compare de **1x a 12x**, com juros ao mês, "sem juros até Nx" e desconto à vista. Cada parcela pode ser marcada como paga.
+- **IPVA e seguro**: IPVA à vista (com desconto) ou em **até 5x sem juros**, respeitando o limite do seu estado; seguro em **até 12x**, com juros ao mês e "sem juros até Nx". Cada parcela pode ser marcada como paga.
 - **Notificações locais**: avisos de vencimento (7 dias antes, 1 dia antes e no dia), de óleo e revisão chegando, e um lembrete diário para registrar os km.
 - **Documentos**: anexe o CRLV, a CNH, a apólice e notas (foto ou PDF) e veja direto na tela, sem baixar. A ficha do CRLV tem botão de copiar Renavam e chassi, e dá para proteger tudo com a digital.
 - **Vários carros**: cadastre mais de um e alterne entre eles.

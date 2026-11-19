@@ -211,7 +211,7 @@ export default function Garage() {
       </Card>
 
       <T v="caption" color={C.textMute} style={{ textAlign: 'center', marginTop: S.xxl }}>
-        GestCar · v1.0 · seus dados ficam só neste celular
+        GestCar · v1.1 · seus dados ficam só neste celular
       </T>
     </Screen>
   );

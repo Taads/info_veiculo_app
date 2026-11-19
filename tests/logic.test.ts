@@ -128,6 +128,21 @@ describe('simulação de parcelamento (IPVA/seguro)', () => {
     assert.equal(planFor(input, 3).total, 3000);
     assert.ok(planFor(input, 4).total > 3000);
   });
+  it('sem juros o total é exato, sem "economia" de centavos', () => {
+    for (const n of [3, 6, 7, 9, 11]) {
+      const p = planFor({ value: 2950, interestPct: 0, freeUntil: 1, discountPct: 0 }, n);
+      assert.equal(p.total, 2950, `${n}x`);
+      assert.equal(p.diff, 0, `${n}x`);
+    }
+  });
+
+  it('IPVA: até 5x sem juros, desconto só à vista', () => {
+    const plans = allPlans({ value: 2950, interestPct: 0, freeUntil: 5, discountPct: 3 }, 5);
+    assert.equal(plans.length, 5);
+    assert.equal(plans[0].total, 2861.5);
+    assert.ok(plans.slice(1).every((p) => p.total === 2950 && p.diff === 0));
+  });
+
   it('gera 12 opções e valor zero não quebra', () => {
     assert.equal(allPlans(base).length, 12);
     assert.deepEqual(planFor({ ...base, value: 0 }, 5), { n: 5, parcel: 0, total: 0, diff: 0 });

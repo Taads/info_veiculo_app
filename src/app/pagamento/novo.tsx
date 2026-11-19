@@ -14,6 +14,10 @@ import { allPlans } from '@/utils/finance';
 import { fmtMoney, parseDecimal } from '@/utils/format';
 
 const YEAR = new Date().getFullYear();
+/** IPVA: parcelamento oficial vai até 5x sem juros (o limite varia por estado). */
+const IPVA_MAX = 5;
+/** Seguro e outras contas: até 12x (com ou sem juros). */
+const OTHER_MAX = 12;
 
 function defaultTitle(kind: PaymentKind) {
   if (kind === 'ipva') return `IPVA ${YEAR + (new Date().getMonth() >= 9 ? 1 : 0)}`;
@@ -36,18 +40,24 @@ export default function NewPayment() {
   const [discount, setDiscount] = useState('');
   const [freeUntil, setFreeUntil] = useState(1);
   const [firstDue, setFirstDue] = useState(todayStr());
-  const [chosen, setChosen] = useState(1);
+  const [chosenRaw, setChosen] = useState(1);
+  // IPVA: o estado parcela em no máximo 5x, sem juros (alguns estados, só 3x).
+  const [ipvaMax, setIpvaMax] = useState(IPVA_MAX);
+
+  const isIpva = kind === 'ipva';
+  const maxN = isIpva ? ipvaMax : OTHER_MAX;
+  const chosen = Math.min(chosenRaw, maxN);
 
   const input = useMemo(
     () => ({
       value,
-      interestPct: parseDecimal(interest),
+      interestPct: isIpva ? 0 : parseDecimal(interest),
       discountPct: parseDecimal(discount),
-      freeUntil,
+      freeUntil: isIpva ? maxN : freeUntil,
     }),
-    [value, interest, discount, freeUntil],
+    [value, interest, discount, freeUntil, isIpva, maxN],
   );
-  const plans = useMemo(() => allPlans(input, 12), [input]);
+  const plans = useMemo(() => allPlans(input, maxN), [input, maxN]);
   const plan = plans[chosen - 1];
   const cheapest = plans.reduce((a, b) => (b.total < a.total ? b : a), plans[0]);
 
@@ -61,7 +71,7 @@ export default function NewPayment() {
       baseValue: value,
       discountPct: input.discountPct,
       interestPct: input.interestPct,
-      freeUntil,
+      freeUntil: input.freeUntil,
       installments: chosen,
       total: plan.total,
       firstDueDate: firstDue,
@@ -77,7 +87,11 @@ export default function NewPayment() {
       back
       overline="Novo pagamento"
       title={kind === 'seguro' ? 'Seguro do carro' : kind === 'ipva' ? 'IPVA' : 'Simular e parcelar'}
-      subtitle="Coloque o valor e veja quanto fica de 1x a 12x."
+      subtitle={
+        isIpva
+          ? `À vista com desconto ou em até ${maxN}x sem juros, como o estado permite.`
+          : `Coloque o valor e veja quanto fica de 1x a ${maxN}x.`
+      }
       footer={
         <View style={{ gap: S.sm }}>
           {value > 0 ? (
@@ -114,11 +128,26 @@ export default function NewPayment() {
           icon="text-short"
         />
         <MoneyField label="Valor total" value={value} onChange={setValue} big />
-        <View style={{ flexDirection: 'row', gap: S.md }}>
-          <DecimalField style={{ flex: 1 }} label="Juros ao mês" text={interest} onChangeText={setInterest} hint="0 = sem juros" />
-          <DecimalField style={{ flex: 1 }} label="Desconto à vista" text={discount} onChangeText={setDiscount} hint="Só no 1x" />
-        </View>
-        <Stepper label="Sem juros até" value={freeUntil} onChange={setFreeUntil} min={1} max={12} format={(n) => `${n}x`} />
+        {isIpva ? (
+          <>
+            <DecimalField label="Desconto à vista" text={discount} onChangeText={setDiscount} hint="Muitos estados dão desconto na cota única" />
+            <Stepper label="Parcelas no seu estado" value={ipvaMax} onChange={setIpvaMax} min={1} max={IPVA_MAX} format={(n) => `até ${n}x`} />
+            <Card style={{ flexDirection: 'row', gap: S.md, alignItems: 'center', padding: S.md }}>
+              <Icon name="information-outline" size={20} color={C.blue} />
+              <T v="caption" style={{ flex: 1 }} color={C.textDim}>
+                O IPVA é parcelado pelo estado em até 5x, sem juros. Confira o limite e as datas na Sefaz do seu estado.
+              </T>
+            </Card>
+          </>
+        ) : (
+          <>
+            <View style={{ flexDirection: 'row', gap: S.md }}>
+              <DecimalField style={{ flex: 1 }} label="Juros ao mês" text={interest} onChangeText={setInterest} hint="0 = sem juros" />
+              <DecimalField style={{ flex: 1 }} label="Desconto à vista" text={discount} onChangeText={setDiscount} hint="Só no 1x" />
+            </View>
+            <Stepper label="Sem juros até" value={freeUntil} onChange={setFreeUntil} min={1} max={OTHER_MAX} format={(n) => `${n}x`} />
+          </>
+        )}
         <DateField label="Vencimento da 1ª parcela" value={firstDue} onChange={setFirstDue} />
       </View>
 

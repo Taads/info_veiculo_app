@@ -60,7 +60,7 @@ export default function Payments() {
 
       {mine.length === 0 ? (
         <T v="caption" color={C.textMute} style={{ textAlign: 'center', marginTop: S.xxl, lineHeight: 18 }}>
-          Toque em IPVA ou Seguro, coloque o valor e compare{'\n'}de 1x a 12x. Cada parcela ganha um lembrete.
+          IPVA à vista ou em até 5x. Seguro em até 12x.{'\n'}Cada parcela ganha um lembrete.
         </T>
       ) : (
         <>
@@ -83,10 +83,10 @@ export default function Payments() {
             <ProgressBar value={paid / Math.max(1, total)} />
             {next ? (
               <View style={styles.next}>
-                <T v="caption" color={C.textDim}>
+                <T v="caption" color={C.textDim} style={{ flex: 1 }}>
                   Próximo: <T v="caption" color={C.text}>{next.payment.title}</T> · {fmtDateShort(next.dueDate)} ({relativeDays(next.days)})
                 </T>
-                <T v="label" style={{ fontFamily: F.display }} color={next.level === 'due' ? C.red : C.text}>
+                <T v="label" numberOfLines={1} style={{ fontFamily: F.display, flexShrink: 0 }} color={next.level === 'due' ? C.red : C.text}>
                   {fmtMoney(next.value)}
                 </T>
               </View>

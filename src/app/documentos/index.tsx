@@ -116,7 +116,7 @@ function Documents() {
             <Button
               style={{ flex: 1 }}
               size="md"
-              label="Ver documento"
+              label="Ver CRLV"
               icon="eye-outline"
               onPress={() => router.push({ pathname: '/documentos/[id]', params: { id: crlv.id } })}
             />

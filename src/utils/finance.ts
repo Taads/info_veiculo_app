@@ -31,13 +31,12 @@ export function planFor(input: PlanInput, n: number): Plan {
   }
 
   const i = Math.max(0, interestPct) / 100;
-  let parcel: number;
   if (i === 0 || n <= freeUntil) {
-    parcel = value / n;
-  } else {
-    parcel = (value * i) / (1 - Math.pow(1 + i, -n));
+    // Sem juros o total é exatamente o valor; os centavos que sobram vão
+    // para a 1ª parcela ao salvar (splitParcels). Ex.: 2.950 em 3x ≠ 2.949,99.
+    return { n, parcel: round2(value / n), total: round2(value), diff: 0 };
   }
-  parcel = round2(parcel);
+  const parcel = round2((value * i) / (1 - Math.pow(1 + i, -n)));
   const total = round2(parcel * n);
   return { n, parcel, total, diff: round2(total - value) };
 }

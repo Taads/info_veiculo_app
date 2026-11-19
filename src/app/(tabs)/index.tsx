@@ -257,7 +257,7 @@ export default function Home() {
               <T v="label" style={{ marginTop: S.xs }}>
                 {kindMeta[k].label}
               </T>
-              <T v="caption">Simular até 12x</T>
+              <T v="caption">{k === 'ipva' ? 'À vista ou até 5x' : 'Simular até 12x'}</T>
               <View style={styles.addRow}>
                 <Icon name="plus" size={15} color={C.accent} />
                 <T v="label" color={C.accent} style={{ fontSize: 13 }}>
